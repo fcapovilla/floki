@@ -30,7 +30,7 @@ defmodule TokenizerTestLoader do
         test "tokenize/1 #{description}", context do
           result =
             Keyword.get(context.registered.params, :input)
-            |> IO.inspect()
+            |> IO.inspect(label: "inside test macro")
             |> Floki.HTML.Tokenizer.tokenize()
             |> TokenizerTestLoader.tokenization_result()
 
