@@ -27,6 +27,7 @@ defmodule TokenizerTestLoader do
 
         @params {:input, Map.get(definition, "input")}
         @params {:output, Map.get(definition, "output")}
+        @params {:description, description}
         test "tokenize/1 #{description}", context do
           result =
             Keyword.get(context.registered.params, :input)
@@ -92,13 +93,19 @@ defmodule TokenizerTestLoader do
   end
 
   defp transform_token(tag = %Tokenizer.Tag{type: :start}) do
-    [
+    list_tag = [
       "StartTag",
       tag.name,
       Enum.reduce(tag.attributes, %{}, fn attr, attributes ->
         Map.put(attributes, attr.name, attr.value)
       end)
     ]
+
+    if tag.self_close do
+      list_tag ++ [true]
+    else
+      list_tag
+    end
   end
 
   defp transform_token(tag = %Tokenizer.Tag{type: :end}) do
