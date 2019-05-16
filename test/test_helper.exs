@@ -22,22 +22,27 @@ defmodule TokenizerTestLoader do
       {:ok, json} = Jason.decode(content)
       tests = Map.get(json, "tests")
 
-      Enum.map(tests, fn definition ->
+      Enum.reduce(tests, MapSet.new(), fn definition, map_set ->
         description = Map.get(definition, "description")
 
-        @params {:input, Map.get(definition, "input")}
-        @params {:output, Map.get(definition, "output")}
-        @params {:description, description}
-        test "tokenize/1 #{description}", context do
-          result =
-            Keyword.get(context.registered.params, :input)
-            |> Floki.HTML.Tokenizer.tokenize()
-            |> TokenizerTestLoader.tokenization_result()
+        if !MapSet.member?(map_set, description) do
+          @params {:input, Map.get(definition, "input")}
+          @params {:output, Map.get(definition, "output")}
+          @params {:description, description}
+          @tag timeout: 200
+          test "tokenize/1 #{description}", context do
+            result =
+              Keyword.get(context.registered.params, :input)
+              |> Floki.HTML.Tokenizer.tokenize()
+              |> TokenizerTestLoader.tokenization_result()
 
-          output = Keyword.get(context.registered.params, :output)
+            output = Keyword.get(context.registered.params, :output)
 
-          assert result.tokens == output
+            assert result.tokens == output
+          end
         end
+
+        MapSet.put(map_set, description)
       end)
     end
   end
