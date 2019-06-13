@@ -25,7 +25,7 @@ defmodule TokenizerTestLoader do
       Enum.reduce(tests, MapSet.new(), fn definition, map_set ->
         description = Map.get(definition, "description")
 
-        if !MapSet.member?(map_set, description) do
+        if !match?("", description) && !MapSet.member?(map_set, description) do
           @params {:input, Map.get(definition, "input")}
           @params {:output, Map.get(definition, "output")}
           @params {:description, description}
